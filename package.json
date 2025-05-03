@@ -9,6 +9,7 @@
     "node": ">=18"
   },
   "dependencies": {
+    "discord.js-selfbot-v13": "^3.6.1",
     "dotenv": "^16.5.0",
     "web-streams-polyfill": "^4.1.0"
   }
