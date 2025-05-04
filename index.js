@@ -4,76 +4,44 @@ require('web-streams-polyfill');
 require("dotenv").config(); 
 
 const { Client } = require("discord.js-selfbot-v13");
-const { joinVoiceChannel, getVoiceConnection } = require("@discordjs/voice");
+const { joinVoiceChannel } = require("@discordjs/voice");
 const keepAlive = require("./keepAlive.js");
 
 // إنشاء العميل
 const client = new Client();
 
-// تعريف الاتصال عشان نتحكم فيه
-let connection;
-
-// دالة للانضمام إلى القناة الصوتية
-const joinVoice = async () => {
-  try {
-    const channel = await client.channels.fetch(process.env.channel);
-
-    if (!channel) return console.error("Channel not found!");
-
-    // إذا في اتصال قديم، لا تسوي شي
-    const existing = getVoiceConnection(process.env.guild);
-    if (existing && existing.state.status !== "destroyed") {
-      console.log("Already connected to voice.");
-      return;
-    }
-
-    // إذا في اتصال قديم لكن حالته معلقة، ندمّره أول
-    if (existing) existing.destroy();
-
-    // الاتصال الجديد
-    connection = joinVoiceChannel({
-      channelId: channel.id,
-      guildId: process.env.guild,
-      selfMute: false,
-      selfDeaf: false,
-      adapterCreator: channel.guild.voiceAdapterCreator,
-    });
-
-    console.log(`✅ Joined voice channel: ${channel.name}`);
-
-    // استماع لأحداث الخطأ أو انقطاع الاتصال
-    connection.on('error', (err) => {
-      console.error("❌ Voice connection error:", err);
-    });
-
-    connection.on('stateChange', (oldState, newState) => {
-      console.log(`🔄 Voice state: ${oldState.status} → ${newState.status}`);
-    });
-
-  } catch (error) {
-    console.error("❌ Error joining the voice channel:", error);
-  }
-};
-
-// لما يكون البوت جاهز
+// حدث: عندما يكون البوت جاهزًا
 client.on("ready", async () => {
-  console.log(`🤖 ${client.user.username} is ready!`);
-
-  // اتصال مبدئي
-  await joinVoice();
-
-  // محاولات كل 5 دقايق فقط إذا الاتصال غير موجود
-  setInterval(async () => {
-    const existing = getVoiceConnection(process.env.guild);
-    if (!existing || existing.state.status === "disconnected") {
-      console.log("🔁 Trying to reconnect...");
-      await joinVoice();
+  console.log(`${client.user.username} is ready!`);
+  
+  const joinVoice = async () => {
+    try {
+      // محاولة استرجاع القناة الصوتية
+      const channel = await client.channels.fetch(process.env.channel);
+      if (channel) {
+        joinVoiceChannel({
+          channelId: channel.id,
+          guildId: process.env.guild,
+          selfMute: false,
+          selfDeaf: false,
+          adapterCreator: channel.guild.voiceAdapterCreator,
+        });
+        console.log(`Joined voice channel: ${channel.name}`);
+      } else {
+        console.error("Channel not found!");
+      }
+    } catch (error) {
+      console.error("Error joining the voice channel:", error);
     }
-  }, 5 * 60 * 1000); // كل 5 دقائق
+  };
+
+  // الانضمام إلى القناة الصوتية فورًا وتجديد الاتصال بشكل دوري
+  joinVoice();
+  setInterval(joinVoice, 60000); // محاولة الانضمام كل دقيقة
 });
 
-// إبقاء البوت شغال
+// إبقاء البوت قيد التشغيل
 keepAlive();
 
-// تسجيل الدخول
+// تسجيل الدخول باستخدام التوكن
 client.login(process.env.TOKEN);
