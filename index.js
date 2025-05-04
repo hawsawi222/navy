@@ -1,29 +1,36 @@
-require("dotenv").config(); 
+require("dotenv").config();
 const { Client } = require("discord.js-selfbot-v13");
-
-// إنشاء العميل
-const client = new Client();
-
-// إضافة إبقاء البوت قيد التشغيل
+const { joinVoiceChannel } = require("@discordjs/voice");
 const keepAlive = require("./keepAlive.js");
 
-// حدث: جاهزية الحساب
+const client = new Client();
+
 client.on("ready", async () => {
   console.log(`🤖 ${client.user.username} is ready!`);
 
-  try {
-    const channel = await client.channels.fetch(process.env.channel);
-    if (!channel || !channel.joinable) return console.log("❌ Can't join the channel");
+  const joinVoice = async () => {
+    try {
+      const channel = await client.channels.fetch(process.env.channel);
+      if (channel) {
+        joinVoiceChannel({
+          channelId: channel.id,
+          guildId: channel.guild.id,
+          selfMute: false,
+          selfDeaf: false,
+          adapterCreator: channel.guild.voiceAdapterCreator,
+        });
+        console.log(`✅ Joined voice channel: ${channel.name}`);
+      } else {
+        console.log("❌ Channel not found!");
+      }
+    } catch (error) {
+      console.error("❌ Error joining voice channel:", error);
+    }
+  };
 
-    await channel.join();
-    console.log(`✅ Joined voice channel: ${channel.name}`);
-  } catch (err) {
-    console.error("❌ Error joining voice channel:", err);
-  }
+  joinVoice();
+  setInterval(joinVoice, 60000); // كل دقيقة يتأكد إنه في الروم
 });
 
-// إبقاء البوت قيد التشغيل
-keepAlive();  // هذا السطر مهم عشان البوت يظل شغال
-
-// تسجيل الدخول
+keepAlive();
 client.login(process.env.TOKEN);
