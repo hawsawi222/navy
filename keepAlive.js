@@ -6,8 +6,8 @@ app.get("/", (req, res) => {
 });
 
 function keepAlive() {
-  app.listen(10000, () => {
-    console.log("🌐 Server is running on port 10000");
+  app.listen(3000, () => {
+    console.log("✅ Web server is running on port 3000");
   });
 }
 
