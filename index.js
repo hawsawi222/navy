@@ -1,38 +1,52 @@
-require("dotenv").config();
-const { Client } = require("discord.js-selfbot-v13");
-const { joinVoiceChannel } = require("@discordjs/voice");
-const keepAlive = require("./keepAlive");
+import { voiceClient } from "./client.js";
+import tokens from "./tokens.js";
+import express from 'express';
+import { fetch } from 'undici';
+import 'dotenv/config'; // مهم عشان يقرأ .env
 
-const client = new Client();
+const app = express();
+const port = process.env.PORT || 3000;
+const url = "https://four-aluminum-charger.glitch.me/";
 
-const joinVoice = async () => {
-  try {
-    const channel = await client.channels.fetch(process.env.channel);
-    if (!channel || !channel.members.has(client.user.id)) {
-      joinVoiceChannel({
-        channelId: channel.id,
-        guildId: channel.guild.id,
-        selfMute: false,
-        selfDeaf: false,
-        adapterCreator: channel.guild.voiceAdapterCreator,
-      });
-      console.log(`✅ Rejoined voice channel: ${channel.name}`);
-    } else {
-      console.log(`👌 Still in channel: ${channel.name}`);
-    }
-  } catch (error) {
-    console.error("❌ Error:", error);
-  }
-};
+app.get('/', (req, res) => res.send('Hello World!'));
+app.head('/', (req, res) => res.sendStatus(200));
+app.listen(port, () => console.log(`Server running at ${url} on port ${port}`));
 
-client.on("ready", async () => {
-  console.log(`🤖 ${client.user.username} is ready!`);
-  joinVoice(); // أول دخول
-  setInterval(joinVoice, 60 * 1000); // كل دقيقة يتأكد
+process.on('uncaughtException', (err) => {
+    console.error(`Uncaught Exception: ${err.message}`);
+});
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });
 
-// اشغل السيرفر الصغير اللي يمنع Render من النوم
-keepAlive();
+setInterval(async () => {
+    try {
+        const response = await fetch(url, { method: 'HEAD' });
+        console.log(`HEAD ping (${response.status})`);
+    } catch (error) {
+        console.error('Ping error:', error);
+    }
+}, 300000); // كل 5 دقايق
 
-// شغل البوت
-client.login(process.env.TOKEN);
+// ✅ تشغيل كل حساب بتأخير لتجنب الطرد
+const cleanTokens = tokens.filter(t => t?.token?.length > 30);
+const delay = ms => new Promise(res => setTimeout(res, ms));
+
+(async () => {
+  for (const token of cleanTokens) {
+    const client = new voiceClient(token);
+
+    client.on('ready', (user) => {
+      console.log(`✅ Logged in as ${user.username}#${user.discriminator}`);
+    });
+
+    client.on('connected', () => console.log('🌐 Connected to Discord'));
+    client.on('disconnected', () => console.log('❌ Disconnected — retrying...'));
+    client.on('voiceReady', () => console.log('🔊 Voice is ready'));
+    client.on('error', (e) => console.error('❗ Error:', e));
+    client.on('debug', (msg) => console.debug(msg));
+
+    await client.connect();
+    await delay(8000); // تأخير 8 ثواني بين كل حساب
+  }
+})();
