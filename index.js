@@ -28,9 +28,12 @@ setInterval(async () => {
     }
 }, 300000); // كل 5 دقايق
 
-// ✅ تشغيل كل حساب بتأخير لتجنب الطرد
+// دوال مساعدة للتأخيرات العشوائية
+const wait = (ms) => new Promise(res => setTimeout(res, ms));
+const randomDelay = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+// ✅ تشغيل كل حساب بتأخير عشوائي بين 6 و12 ثانية لتجنب الطرد
 const cleanTokens = tokens.filter(t => t?.token?.length > 30);
-const delay = ms => new Promise(res => setTimeout(res, ms));
 
 (async () => {
   for (const token of cleanTokens) {
@@ -41,12 +44,26 @@ const delay = ms => new Promise(res => setTimeout(res, ms));
     });
 
     client.on('connected', () => console.log('🌐 Connected to Discord'));
-    client.on('disconnected', () => console.log('❌ Disconnected — retrying...'));
+
+    // عند قطع الاتصال حاول تعيد الاتصال مع تأخير عشوائي بين 30 و 60 ثانية
+    client.on('disconnected', async () => {
+      console.log('❌ Disconnected — retrying after delay...');
+      const delayMs = randomDelay(30000, 60000);
+      await wait(delayMs);
+      try {
+        await client.connect();
+      } catch (e) {
+        console.error('❗ Reconnect failed:', e);
+      }
+    });
+
     client.on('voiceReady', () => console.log('🔊 Voice is ready'));
     client.on('error', (e) => console.error('❗ Error:', e));
     client.on('debug', (msg) => console.debug(msg));
 
     await client.connect();
-    await delay(8000); // تأخير 8 ثواني بين كل حساب
+
+    // تأخير عشوائي بين 6 إلى 12 ثانية بين كل حساب
+    await wait(randomDelay(6000, 12000));
   }
 })();
