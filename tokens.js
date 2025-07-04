@@ -1,12 +1,12 @@
 export default [
   {
-    channelId: "1388953501534781471", 
+    channelId: "1388953501534781471",
     serverId: "1133667699151618130",
-    token: process.env.token1,
+    token: process.env.TOKEN1,
     selfDeaf: false,
     autoReconnect: {
       enabled: true,
-      delay: 30000,      // 30 ثانية بدل 5
+      delay: 30000,
       maxRetries: 5,
     },
     presence: {
