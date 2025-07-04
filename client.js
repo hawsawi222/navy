@@ -99,4 +99,103 @@ export class voiceClient extends EventEmitter {
                 this.reconnectAttempts++;
                 if (this.reconnectAttempts < this.autoReconnect.maxRetries) {
                   if (this.reconnectTimeout) clearTimeout(this.reconnectTimeout);
-                  this.emit('debug', `Reconnecting... (${this.reconnectAttempts}/${this.autoReconn
+                  this.emit('debug', `Reconnecting... (${this.reconnectAttempts}/${this.autoReconnect.maxRetries})`);
+                  this.ignoreReconnect = true;
+                  this.reconnectTimeout = setTimeout(() => this.joinVoiceChannel(), this.autoReconnect.delay);
+                } else {
+                  this.emit('debug', 'Max reconnect attempts reached. Stopping.');
+                  this.cleanup();
+                }
+              }
+            }
+          }
+          break;
+      }
+    });
+
+    this.ws.on('close', () => {
+      this.emit('disconnected');
+      this.emit('debug', '❌ Disconnected. Reconnecting...');
+      this.cleanup();
+      if (this.firstLoad) {
+        console.log(`Bad token or invalid channelId/guildId`);
+        return;
+      }
+      setTimeout(() => this.connect(), 5000);
+    });
+
+    this.ws.on('error', (err) => {
+      this.emit('error', err);
+      this.emit('debug', `WebSocket error: ${err.message}`);
+    });
+  }
+
+  startHeartbeat(interval) {
+    this.heartbeatInterval = setInterval(() => {
+      this.ws?.send(JSON.stringify({ op: 1, d: this.sequenceNumber }));
+      this.emit('debug', 'Sending heartbeat');
+    }, interval);
+  }
+
+  identify() {
+    const payload = {
+      op: 2,
+      d: {
+        token: this.token,
+        intents: 128,
+        properties: {
+          os: 'Windows',
+          browser: 'Chrome',
+          device: '',
+        },
+      },
+    };
+    this.ws?.send(JSON.stringify(payload));
+    this.emit('debug', 'Sending identify payload');
+  }
+
+  joinVoiceChannel() {
+    if (!this.guildId || !this.channelId) return;
+    const voiceStateUpdate = {
+      op: 4,
+      d: {
+        guild_id: this.guildId,
+        channel_id: this.channelId,
+        self_mute: this.selfMute,
+        self_deaf: this.selfDeaf,
+      },
+    };
+    this.ws?.send(JSON.stringify(voiceStateUpdate));
+    this.emit('debug', '🎤 Sent voice channel join request');
+    setTimeout(() => {
+      this.ignoreReconnect = false;
+    }, 1000);
+  }
+
+  cleanup() {
+    if (this.heartbeatInterval) clearInterval(this.heartbeatInterval);
+    this.ws = null;
+    this.sequenceNumber = null;
+  }
+
+  sendStatusUpdate() {
+    const status = this.presence?.status?.toLowerCase();
+    if (!status || !statusList.includes(status)) return;
+    const payload = {
+      op: 3,
+      d: {
+        status: this.presence.status,
+        activities: [],
+        since: Math.floor(Date.now() / 1000) - 10,
+        afk: true,
+      },
+    };
+    this.ws?.send(JSON.stringify(payload));
+    this.emit('debug', `Status updated to ${this.presence.status}`);
+  }
+
+  disconnect() {
+    this.cleanup();
+    this.emit('debug', 'Client manually disconnected');
+  }
+}
