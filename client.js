@@ -22,6 +22,7 @@ export class voiceClient extends EventEmitter {
   autoReconnect;
   presence;
   user_id = null;
+  connected = false;
 
   constructor(config) {
     super();
@@ -45,6 +46,7 @@ export class voiceClient extends EventEmitter {
     this.setMaxListeners(5);
 
     this.ws.on('open', () => {
+      this.connected = true;
       this.emit('connected');
       this.emit('debug', '🌐 Connected to Discord Gateway');
     });
@@ -69,6 +71,10 @@ export class voiceClient extends EventEmitter {
           this.invalidSession = true;
           if (this.ws) this.ws.terminate();
           this.cleanup();
+          setTimeout(() => {
+            this.invalidSession = false;
+            this.connect();
+          }, 10000);
           break;
         case 0:
           if (eventType === 'READY') {
@@ -114,11 +120,16 @@ export class voiceClient extends EventEmitter {
     });
 
     this.ws.on('close', () => {
+      this.connected = false;
       this.emit('disconnected');
       this.emit('debug', '❌ Disconnected. Reconnecting...');
       this.cleanup();
-      // شلت شرط الـ firstLoad عشان يعيد الاتصال دايمًا
-      setTimeout(() => this.connect(), 5000);
+
+      if (!this.invalidSession) {
+        setTimeout(() => this.connect(), 5000);
+      } else {
+        this.emit('debug', '🛑 Session invalid. Will not reconnect.');
+      }
     });
 
     this.ws.on('error', (err) => {
