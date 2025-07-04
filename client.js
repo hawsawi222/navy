@@ -117,10 +117,7 @@ export class voiceClient extends EventEmitter {
       this.emit('disconnected');
       this.emit('debug', '❌ Disconnected. Reconnecting...');
       this.cleanup();
-      if (this.firstLoad) {
-        console.log(`Bad token or invalid channelId/guildId`);
-        return;
-      }
+      // شلت شرط الـ firstLoad عشان يعيد الاتصال دايمًا
       setTimeout(() => this.connect(), 5000);
     });
 
