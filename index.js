@@ -26,7 +26,7 @@ setInterval(async () => {
   } catch (error) {
     console.error('Ping error:', error);
   }
-}, 300000); // كل 5 دقايق
+}, 300000);
 
 const wait = ms => new Promise(res => setTimeout(res, ms));
 const randomDelay = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
@@ -39,8 +39,8 @@ const cleanTokens = tokens.filter(t => t?.token?.length > 30);
       token: tokenConfig.token,
       serverId: tokenConfig.serverId,
       channelId: tokenConfig.channelId,
-      selfMute: tokenConfig.selfMute,
-      selfDeaf: tokenConfig.selfDeaf,
+      selfMute: tokenConfig.selfMute ?? true,
+      selfDeaf: tokenConfig.selfDeaf ?? true,
       autoReconnect: tokenConfig.autoReconnect || { enabled: false },
       presence: tokenConfig.presence
     });
@@ -50,6 +50,7 @@ const cleanTokens = tokens.filter(t => t?.token?.length > 30);
     });
 
     client.on('connected', () => console.log('🌐 Connected to Discord'));
+
     client.on('disconnected', async () => {
       console.log('❌ Disconnected — retrying after delay...');
       const delayMs = randomDelay(30000, 60000);
