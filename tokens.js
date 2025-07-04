@@ -6,7 +6,7 @@ export default [
     selfDeaf: false,
     autoReconnect: {
       enabled: true,
-      delay: 5,
+      delay: 30000,      // 30 ثانية بدل 5
       maxRetries: 5,
     },
     presence: {
