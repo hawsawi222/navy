@@ -1,32 +1,30 @@
-import { voiceClient } from './client.js';
-import tokens from './tokens.js';
-import express from 'express';
-import { fetch } from 'undici';
-import dotenv from 'dotenv';
-
-dotenv.config();
+const { voiceClient } = require("./client.js");
+const tokens = require("./tokens.js");
+const express = require("express");
+const { fetch } = require("undici");
+require("dotenv").config();
 
 const app = express();
 const port = process.env.PORT || 3000;
-const url = process.env.URL || 'https://four-aluminum-charger.glitch.me/';
+const url = process.env.URL || "https://four-aluminum-charger.glitch.me/";
 
-app.get('/', (req, res) => res.send('Hello World!'));
-app.head('/', (req, res) => res.sendStatus(200));
+app.get("/", (req, res) => res.send("Hello World!"));
+app.head("/", (req, res) => res.sendStatus(200));
 app.listen(port, () => console.log(`Server running at ${url} on port ${port}`));
 
-process.on('uncaughtException', (err) => {
+process.on("uncaughtException", (err) => {
   console.error(`Uncaught Exception: ${err.message}`);
 });
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("Unhandled Rejection at:", promise, "reason:", reason);
 });
 
 setInterval(async () => {
   try {
-    const response = await fetch(url, { method: 'HEAD' });
+    const response = await fetch(url, { method: "HEAD" });
     console.log(`HEAD ping (${response.status})`);
   } catch (error) {
-    console.error('Ping error:', error);
+    console.error("Ping error:", error);
   }
 }, 300000);
 
@@ -48,14 +46,14 @@ const cleanTokens = tokens.filter((t) => t?.token?.length > 30);
       presence: tokenConfig.presence,
     });
 
-    client.on('ready', (user) => {
+    client.on("ready", (user) => {
       console.log(`✅ Logged in as ${user.username}#${user.discriminator}`);
     });
 
-    client.on('connected', () => console.log('🌐 Connected to Discord'));
+    client.on("connected", () => console.log("🌐 Connected to Discord"));
 
-    client.on('disconnected', async () => {
-      console.log('❌ Disconnected — retrying after delay...');
+    client.on("disconnected", async () => {
+      console.log("❌ Disconnected — retrying after delay...");
       const delayMs = randomDelay(30000, 60000);
       await wait(delayMs);
       try {
@@ -63,20 +61,20 @@ const cleanTokens = tokens.filter((t) => t?.token?.length > 30);
           await client.connect();
         }
       } catch (e) {
-        console.error('❗ Reconnect failed:', e);
+        console.error("❗ Reconnect failed:", e);
       }
     });
 
-    client.on('voiceReady', () => console.log('🔊 Voice is ready'));
-    client.on('error', (e) => console.error('❗ Error:', e));
-    client.on('debug', (msg) => console.debug(msg));
+    client.on("voiceReady", () => console.log("🔊 Voice is ready"));
+    client.on("error", (e) => console.error("❗ Error:", e));
+    client.on("debug", (msg) => console.debug(msg));
 
     try {
       if (!client.connected) {
         await client.connect();
       }
     } catch (e) {
-      console.error('❗ Initial connect failed:', e);
+      console.error("❗ Initial connect failed:", e);
     }
 
     await wait(randomDelay(6000, 12000));
