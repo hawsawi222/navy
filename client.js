@@ -1,11 +1,11 @@
-import WebSocket from 'ws';
-import { EventEmitter } from 'events';
+const WebSocket = require('ws');
+const { EventEmitter } = require('events');
 
 const blackListedEvents = ["CHANNEL_UNREAD_UPDATE", "CONVERSATION_SUMMARY_UPDATE", "SESSIONS_REPLACE"];
 const GATEWAY_URL = 'wss://gateway.discord.gg/?v=10&encoding=json';
 const statusList = ["online", "idle", "dnd", "invisible", "offline"];
 
-export class voiceClient extends EventEmitter {
+class voiceClient extends EventEmitter {
   ws = null;
   heartbeatInterval;
   sequenceNumber = null;
@@ -207,3 +207,5 @@ export class voiceClient extends EventEmitter {
     this.emit('debug', 'Client manually disconnected');
   }
 }
+
+module.exports = { voiceClient };
