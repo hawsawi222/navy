@@ -1,8 +1,8 @@
-import { voiceClient } from "./client.js";
-import tokens from "./tokens.js";
-import express from "express";
-import { fetch } from "undici";
-import "dotenv/config";
+const { voiceClient } = require("./client.js");
+const tokens = require("./tokens.js");
+const express = require("express");
+const { fetch } = require("undici");
+require("dotenv").config();
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -10,9 +10,7 @@ const url = process.env.URL || "https://four-aluminum-charger.glitch.me/";
 
 app.get("/", (req, res) => res.send("Hello World!"));
 app.head("/", (req, res) => res.sendStatus(200));
-app.listen(port, () =>
-  console.log(`Server running at ${url} on port ${port}`)
-);
+app.listen(port, () => console.log(`Server running at ${url} on port ${port}`));
 
 process.on("uncaughtException", (err) => {
   console.error(`Uncaught Exception: ${err.message}`);
