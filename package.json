@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "Discord voice client for staying connected to voice channels",
   "main": "index.js",
-  "type": "module",
   "scripts": {
     "start": "node index.js"
   },
