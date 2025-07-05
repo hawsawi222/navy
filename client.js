@@ -1,5 +1,5 @@
-const WebSocket = require('ws');
-const { EventEmitter } = require('events');
+import WebSocket from 'ws';
+import { EventEmitter } from 'events';
 
 const blackListedEvents = ["CHANNEL_UNREAD_UPDATE", "CONVERSATION_SUMMARY_UPDATE", "SESSIONS_REPLACE"];
 const GATEWAY_URL = 'wss://gateway.discord.gg/?v=10&encoding=json';
@@ -208,4 +208,4 @@ class voiceClient extends EventEmitter {
   }
 }
 
-module.exports = { voiceClient };
+export { voiceClient };
