@@ -1,4 +1,4 @@
-export default [
+module.exports = [
   {
     channelId: "1388953501534781471",
     serverId: "1133667699151618130",
@@ -14,7 +14,6 @@ export default [
     },
     selfMute: false,
   },
-  export default [
   {
     channelId: "1388953501534781471",
     serverId: "1133667699151618130",
@@ -30,7 +29,6 @@ export default [
     },
     selfMute: false,
   },
-  export default [
   {
     channelId: "1388953501534781471",
     serverId: "1133667699151618130",
@@ -45,5 +43,5 @@ export default [
       status: "invisible",
     },
     selfMute: false,
-  },
+  }
 ];
