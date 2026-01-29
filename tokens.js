@@ -5,7 +5,7 @@ module.exports = [
     token: process.env.token1,
     selfDeaf: false,
     autoReconnect: { enabled: true, delay: 30, maxRetries: 5 },
-    presence: { status: "offline" },
+    presence: { status: "invisible" },
     selfMute: false
   },
   {
@@ -14,7 +14,7 @@ module.exports = [
     token: process.env.token2,
     selfDeaf: false,
     autoReconnect: { enabled: true, delay: 30, maxRetries: 5 },
-    presence: { status: "offline" },
+    presence: { status: "invisible" },
     selfMute: false
   },
   {
@@ -23,7 +23,7 @@ module.exports = [
     token: process.env.token3,
     selfDeaf: false,
     autoReconnect: { enabled: true, delay: 30, maxRetries: 5 },
-    presence: { status: "offline" },
+    presence: { status: "invisible" },
     selfMute: false
   },
   {
@@ -32,7 +32,7 @@ module.exports = [
     token: process.env.token4,
     selfDeaf: false,
     autoReconnect: { enabled: true, delay: 30, maxRetries: 5 },
-    presence: { status: "offline" },
+    presence: { status: "invisible" },
     selfMute: false
   },
   {
@@ -41,7 +41,7 @@ module.exports = [
     token: process.env.token5,
     selfDeaf: false,
     autoReconnect: { enabled: true, delay: 30, maxRetries: 5 },
-    presence: { status: "offline" },
+    presence: { status: "invisible" },
     selfMute: false
   },
   {
@@ -50,7 +50,7 @@ module.exports = [
     token: process.env.token6,
     selfDeaf: false,
     autoReconnect: { enabled: true, delay: 30, maxRetries: 5 },
-    presence: { status: "offline" },
+    presence: { status: "invisible" },
     selfMute: false
   }
 ];
