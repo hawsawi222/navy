@@ -6,27 +6,17 @@ const GATEWAY_URL = 'wss://gateway.discord.gg/?v=10&encoding=json';
 const statusList = ["online", "idle", "dnd", "invisible", "offline"];
 
 class voiceClient extends EventEmitter {
-  ws = null;
-  heartbeatInterval;
-  sequenceNumber = null;
-  firstLoad = true;
-  reconnectAttempts = 0;
-  ignoreReconnect = false;
-  reconnectTimeout;
-  invalidSession = false;
-  token;
-  guildId;
-  channelId;
-  selfMute;
-  selfDeaf;
-  autoReconnect;
-  presence;
-  user_id = null;
-  connected = false;
-
   constructor(config) {
     super();
     if (!config.token) throw new Error('token is required');
+    this.ws = null;
+    this.heartbeatInterval = null;
+    this.sequenceNumber = null;
+    this.firstLoad = true;
+    this.reconnectAttempts = 0;
+    this.ignoreReconnect = false;
+    this.reconnectTimeout = null;
+    this.invalidSession = false;
     this.token = config.token;
     this.guildId = config.serverId;
     this.channelId = config.channelId;
@@ -38,12 +28,15 @@ class voiceClient extends EventEmitter {
       maxRetries: config.autoReconnect?.maxRetries ?? 9999,
     };
     this.presence = config.presence ?? null;
+    this.user_id = null;
+    this.connected = false;
   }
 
   connect() {
-    if (this.invalidSession) return;
+    if (this.invalidSession || (this.ws && this.ws.readyState === WebSocket.CONNECTING)) return;
+    
+    this.cleanup(); // تنظيف أي مخلفات اتصال قديم قبل البدء
     this.ws = new WebSocket(GATEWAY_URL, { skipUTF8Validation: true });
-    this.setMaxListeners(5);
 
     this.ws.on('open', () => {
       this.connected = true;
@@ -59,7 +52,6 @@ class voiceClient extends EventEmitter {
 
       switch (op) {
         case 10:
-          this.emit('debug', 'Received Hello (op 10)');
           this.startHeartbeat(d.heartbeat_interval);
           this.identify();
           break;
@@ -67,104 +59,61 @@ class voiceClient extends EventEmitter {
           this.emit('debug', 'Heartbeat acknowledged');
           break;
         case 9:
-          this.emit('debug', 'Invalid session. Reconnecting...');
           this.invalidSession = true;
-          if (this.ws) this.ws.terminate();
-          this.cleanup();
-          setTimeout(() => {
-            this.invalidSession = false;
-            this.connect();
-          }, 10000);
+          this.ws?.terminate();
+          setTimeout(() => { this.invalidSession = false; this.connect(); }, 5000);
           break;
         case 0:
           if (eventType === 'READY') {
             this.user_id = d.user.id;
-            this.emit('ready', {
-              username: d.user.username,
-              discriminator: d.user.discriminator,
-            });
-            this.emit('debug', `🎉 Logged in as ${d.user.username}#${d.user.discriminator}`);
-            this.joinVoiceChannel();
-            this.sendStatusUpdate();
-          } else if (eventType === 'VOICE_STATE_UPDATE') {
-            if (
-              d.user_id === this.user_id &&
-              d.channel_id === this.channelId &&
-              d.guild_id === this.guildId &&
-              this.firstLoad
-            ) {
-              this.emit('voiceReady');
-              this.emit('debug', 'Successfully joined voice channel');
-              this.firstLoad = false;
-            } else if (
-              d.user_id === this.user_id &&
-              (this.guildId && this.channelId && (d.channel_id !== this.channelId || d.guild_id !== this.guildId))
-            ) {
-              if (this.autoReconnect.enabled) {
-                if (this.ignoreReconnect) return;
-                this.reconnectAttempts++;
-                if (this.reconnectAttempts < this.autoReconnect.maxRetries) {
-                  if (this.reconnectTimeout) clearTimeout(this.reconnectTimeout);
-                  this.emit('debug', `Reconnecting... (${this.reconnectAttempts}/${this.autoReconnect.maxRetries})`);
-                  this.ignoreReconnect = true;
-                  this.reconnectTimeout = setTimeout(() => this.joinVoiceChannel(), this.autoReconnect.delay);
-                } else {
-                  this.emit('debug', 'Max reconnect attempts reached. Stopping.');
-                  this.cleanup();
-                }
-              }
-            }
+            this.emit('ready', { username: d.user.username, discriminator: d.user.discriminator });
+            // تأخير بسيط قبل دخول الروم لضمان استقرار الجلسة
+            setTimeout(() => {
+                this.joinVoiceChannel();
+                this.sendStatusUpdate();
+            }, 2000);
           }
           break;
       }
     });
 
-    this.ws.on('close', () => {
+    this.ws.on('close', (code) => {
       this.connected = false;
-      this.emit('disconnected');
-      this.emit('debug', '❌ Disconnected. Reconnecting...');
       this.cleanup();
-
-      if (!this.invalidSession) {
-        setTimeout(() => this.connect(), 5000);
-      } else {
-        this.emit('debug', '🛑 Session invalid. Will not reconnect.');
+      this.emit('disconnected', code);
+      if (code !== 4004 && !this.invalidSession) {
+         setTimeout(() => this.connect(), 5000);
       }
     });
 
-    this.ws.on('error', (err) => {
-      this.emit('error', err);
-      this.emit('debug', `WebSocket error: ${err.message}`);
-    });
+    this.ws.on('error', (err) => this.emit('error', err));
   }
 
   startHeartbeat(interval) {
+    if (this.heartbeatInterval) clearInterval(this.heartbeatInterval);
     this.heartbeatInterval = setInterval(() => {
-      this.ws?.send(JSON.stringify({ op: 1, d: this.sequenceNumber }));
-      this.emit('debug', 'Sending heartbeat');
+      if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+        this.ws.send(JSON.stringify({ op: 1, d: this.sequenceNumber }));
+      }
     }, interval);
   }
 
   identify() {
-    const payload = {
-      op: 2,
-      d: {
-        token: this.token,
-        intents: 128,
-        properties: {
-          os: 'Windows',
-          browser: 'Chrome',
-          device: '',
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+      this.ws.send(JSON.stringify({
+        op: 2,
+        d: {
+          token: this.token,
+          intents: 128, // Intent for Guild Voice States
+          properties: { os: 'Windows', browser: 'Chrome', device: '' },
         },
-      },
-    };
-    this.ws?.send(JSON.stringify(payload));
-    this.emit('debug', 'Sending identify payload');
+      }));
+    }
   }
 
   joinVoiceChannel() {
-    if (!this.guildId || !this.channelId) return;
-    const voiceStateUpdate = {
+    if (!this.guildId || !this.channelId || !this.ws || this.ws.readyState !== WebSocket.OPEN) return;
+    this.ws.send(JSON.stringify({
       op: 4,
       d: {
         guild_id: this.guildId,
@@ -172,39 +121,35 @@ class voiceClient extends EventEmitter {
         self_mute: this.selfMute,
         self_deaf: this.selfDeaf,
       },
-    };
-    this.ws?.send(JSON.stringify(voiceStateUpdate));
-    this.emit('debug', '🎤 Sent voice channel join request');
-    setTimeout(() => {
-      this.ignoreReconnect = false;
-    }, 1000);
-  }
-
-  cleanup() {
-    if (this.heartbeatInterval) clearInterval(this.heartbeatInterval);
-    this.ws = null;
-    this.sequenceNumber = null;
+    }));
+    this.emit('debug', '🎤 Voice join request sent');
   }
 
   sendStatusUpdate() {
+    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return;
     const status = this.presence?.status?.toLowerCase();
     if (!status || !statusList.includes(status)) return;
-    const payload = {
+    this.ws.send(JSON.stringify({
       op: 3,
       d: {
         status: this.presence.status,
         activities: [],
-        since: Math.floor(Date.now() / 1000) - 10,
+        since: Date.now(),
         afk: true,
       },
-    };
-    this.ws?.send(JSON.stringify(payload));
-    this.emit('debug', `Status updated to ${this.presence.status}`);
+    }));
   }
 
-  disconnect() {
-    this.cleanup();
-    this.emit('debug', 'Client manually disconnected');
+  cleanup() {
+    if (this.heartbeatInterval) {
+        clearInterval(this.heartbeatInterval);
+        this.heartbeatInterval = null;
+    }
+    if (this.ws) {
+        this.ws.removeAllListeners();
+        if (this.ws.readyState === WebSocket.OPEN) this.ws.close();
+        this.ws = null;
+    }
   }
 }
 
