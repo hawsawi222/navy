@@ -8,75 +8,75 @@ const app = express();
 const port = process.env.PORT || 3000;
 const url = process.env.URL || 'https://four-aluminum-charger.glitch.me/';
 
-app.get('/', (req, res) => res.send('Hello World!'));
-app.head('/', (req, res) => res.sendStatus(200));
-app.listen(port, () => console.log(`Server running at ${url} on port ${port}`));
+app.get('/', (req, res) => res.send('Don Monitoring System Active!'));
+app.listen(port, () => console.log(`🚀 [DON MODE] Debugger running on port ${port}`));
 
+// --- نظام صيد الأخطاء العالمي ---
 process.on('uncaughtException', (err) => {
-  console.error(`Uncaught Exception: ${err.message}`);
+  console.error('🛑 [CRITICAL ERROR] Full Details:');
+  console.error(`Message: ${err.message}`);
+  console.error(`Code: ${err.code || 'N/A'}`);
+  console.error(`Stack: ${err.stack}`); // هذا بيعلمنا السطر اللي فيه المشكلة بالضبط
 });
+
 process.on('unhandledRejection', (reason, promise) => {
-  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  console.error('⚠️ [UNHANDLED REJECTION] at:', promise, 'reason:', reason);
 });
 
 setInterval(async () => {
   try {
-    const response = await fetch(url, { method: 'HEAD' });
-    console.log(`HEAD ping (${response.status})`);
-  } catch (error) {
-    console.error('Ping error:', error);
+    await fetch(url, { method: 'HEAD' });
+  } catch (e) {
+    console.log('📡 Render Keep-alive failed (Normal if URL is wrong)');
   }
-}, 300000);
+}, 120000);
 
 const wait = (ms) => new Promise((res) => setTimeout(res, ms));
-const randomDelay = (min, max) =>
-  Math.floor(Math.random() * (max - min + 1)) + min;
-
-const cleanTokens = tokens.filter((t) => t?.token?.length > 30);
 
 (async () => {
-  for (const tokenConfig of cleanTokens) {
+  const cleanTokens = tokens.filter((t) => t?.token?.length > 30);
+  console.log(`📡 Starting Monitor for ${cleanTokens.length} accounts...`);
+  
+  for (const [index, tokenConfig] of cleanTokens.entries()) {
     const client = new voiceClient({
       token: tokenConfig.token,
       serverId: tokenConfig.serverId,
       channelId: tokenConfig.channelId,
       selfMute: tokenConfig.selfMute ?? true,
       selfDeaf: tokenConfig.selfDeaf ?? true,
-      autoReconnect: tokenConfig.autoReconnect || { enabled: false },
+      autoReconnect: { enabled: true, delay: 30000 },
       presence: tokenConfig.presence,
     });
 
     client.on('ready', (user) => {
-      console.log(`✅ Logged in as ${user.username}#${user.discriminator}`);
+      console.log(`✅ [ACCOUNT #${index + 1}] Verified as: ${user.username}`);
     });
 
-    client.on('connected', () => console.log('🌐 Connected to Discord'));
+    // لوق تفصيلي للديسكونكت
+    client.on('disconnected', (code, reason) => {
+      console.log(`⚠️ [ACCOUNT #${index + 1}] DISCONNECTED!`);
+      console.log(`🔹 Error Code: ${code || 'Unknown'}`);
+      console.log(`🔹 Reason: ${reason || 'No reason provided by Discord'}`);
+    });
 
-    client.on('disconnected', async () => {
-      console.log('❌ Disconnected — retrying after delay...');
-      const delayMs = randomDelay(30000, 60000);
-      await wait(delayMs);
+    // لوق الأخطاء البرمجية
+    client.on('error', (err) => {
+      console.error(`❌ [ACCOUNT #${index + 1}] SOCKET ERROR:`);
+      console.error(`- Name: ${err.name}`);
+      console.error(`- Msg: ${err.message}`);
+      if (err.message.includes('4004')) console.error('👉 Tip: Your Token is DEAD/INVALID!');
+      if (err.message.includes('4014')) console.error('👉 Tip: Missing Intent/Permissions!');
+    });
+
+    const startClient = async () => {
       try {
-        if (!client.connected) {
-          await client.connect();
-        }
-      } catch (e) {
-        console.error('❗ Reconnect failed:', e);
-      }
-    });
-
-    client.on('voiceReady', () => console.log('🔊 Voice is ready'));
-    client.on('error', (e) => console.error('❗ Error:', e));
-    client.on('debug', (msg) => console.debug(msg));
-
-    try {
-      if (!client.connected) {
         await client.connect();
+      } catch (e) {
+        console.error(`❗ [ACCOUNT #${index + 1}] Initial Connection Failed: ${e.message}`);
       }
-    } catch (e) {
-      console.error('❗ Initial connect failed:', e);
-    }
+    };
 
-    await wait(randomDelay(6000, 12000));
+    startClient();
+    await wait(15000); // لا تنقصها عشان ما تتبند
   }
 })();
