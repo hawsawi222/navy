@@ -1,6 +1,6 @@
 module.exports = [
   {
-    channelId: "1467828502974693619",
+    channelId: "1470005922905587805",
     serverId: "1319424703940792430",
     token: process.env.token1,
     selfDeaf: false,
@@ -9,7 +9,7 @@ module.exports = [
     selfMute: false
   },
   {
-    channelId: "1467828502974693619",
+    channelId: "1470005922905587805",
     serverId: "1319424703940792430",
     token: process.env.token2,
     selfDeaf: false,
@@ -18,7 +18,7 @@ module.exports = [
     selfMute: false
   },
   {
-    channelId: "1467828502974693619",
+    channelId: "1470005922905587805",
     serverId: "1319424703940792430",
     token: process.env.token3,
     selfDeaf: false,
@@ -27,7 +27,7 @@ module.exports = [
     selfMute: false
   },
   {
-    channelId: "1467828502974693619",
+    channelId: "1470005922905587805",
     serverId: "1319424703940792430",
     token: process.env.token4,
     selfDeaf: false,
@@ -36,7 +36,7 @@ module.exports = [
     selfMute: false
   },
   {
-    channelId: "1467828502974693619",
+    channelId: "1470005922905587805",
     serverId: "1319424703940792430",
     token: process.env.token5,
     selfDeaf: false,
@@ -45,7 +45,7 @@ module.exports = [
     selfMute: false
   },
   {
-    channelId: "1467828502974693619",
+    channelId: "1470005922905587805",
     serverId: "1319424703940792430",
     token: process.env.token6,
     selfDeaf: false,
