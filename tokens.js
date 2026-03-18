@@ -52,5 +52,32 @@ module.exports = [
     autoReconnect: { enabled: true, delay: 30, maxRetries: 5 },
     presence: { status: "invisible" },
     selfMute: false
+  },
+  {
+    channelId: "1482487243917627593",
+    serverId: "1459061747204751486",
+    token: process.env.token7,
+    selfDeaf: false,
+    autoReconnect: { enabled: true, delay: 30, maxRetries: 5 },
+    presence: { status: "invisible" },
+    selfMute: false
+  },
+  {
+    channelId: "1482487243917627593",
+    serverId: "1459061747204751486",
+    token: process.env.token8,
+    selfDeaf: false,
+    autoReconnect: { enabled: true, delay: 30, maxRetries: 5 },
+    presence: { status: "invisible" },
+    selfMute: false
+  },
+  {
+    channelId: "1482487243917627593",
+    serverId: "1459061747204751486",
+    token: process.env.token9,
+    selfDeaf: false,
+    autoReconnect: { enabled: true, delay: 30, maxRetries: 5 },
+    presence: { status: "invisible" },
+    selfMute: false
   }
 ];
