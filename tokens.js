@@ -27,7 +27,7 @@ module.exports = [
     selfMute: false
   },
   {
-    channelId: "1045359599584280696",
+    channelId: "1486106780798029925",
     serverId: "1109636583642103903",
     token: process.env.token4,
     selfDeaf: false,
