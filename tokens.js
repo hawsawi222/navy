@@ -72,21 +72,12 @@ module.exports = [
     selfMute: false
   },
   {
-    channelId: "1482918046891905075",
-    serverId: "1459061747204751486",
+    channelId: "1517475607020044419",
+    serverId: "1467940648664694888",
     token: process.env.token9,
     selfDeaf: false,
     autoReconnect: { enabled: true, delay: 30, maxRetries: 5 },
     presence: { status: "invisible" },
     selfMute: false
-  },
-  {
-    channelId: "1418075586391179394",
-    serverId: "1397329721905381598",
-    token: process.env.token10,
-    selfDeaf: true,
-    autoReconnect: { enabled: true, delay: 30, maxRetries: 5 },
-    presence: { status: "invisible" },
-    selfMute: true
   }
 ];
