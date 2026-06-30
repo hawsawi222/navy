@@ -1,83 +1,83 @@
 module.exports = [
-  {
-    channelId: "1045359599584280696",
-    serverId: "1109636583642103903",
-    token: process.env.token1,
-    selfDeaf: false,
-    autoReconnect: { enabled: true, delay: 30, maxRetries: 5 },
-    presence: { status: "invisible" },
-    selfMute: false
-  },
-  {
-    channelId: "1045359599584280696",
-    serverId: "1109636583642103903",
-    token: process.env.token2,
-    selfDeaf: false,
-    autoReconnect: { enabled: true, delay: 30, maxRetries: 5 },
-    presence: { status: "invisible" },
-    selfMute: false
-  },
-  {
-    channelId: "1045359599584280696",
-    serverId: "1109636583642103903",
-    token: process.env.token3,
-    selfDeaf: false,
-    autoReconnect: { enabled: true, delay: 30, maxRetries: 5 },
-    presence: { status: "invisible" },
-    selfMute: false
-  },
-  {
-    channelId: "1486106780798029925",
-    serverId: "1109636583642103903",
-    token: process.env.token4,
-    selfDeaf: false,
-    autoReconnect: { enabled: true, delay: 30, maxRetries: 5 },
-    presence: { status: "invisible" },
-    selfMute: false
-  },
-  {
-    channelId: "1045359599584280696",
-    serverId: "1109636583642103903",
-    token: process.env.token5,
-    selfDeaf: false,
-    autoReconnect: { enabled: true, delay: 30, maxRetries: 5 },
-    presence: { status: "invisible" },
-    selfMute: false
-  },
-  {
-    channelId: "1045359599584280696",
-    serverId: "1109636583642103903",
-    token: process.env.token6,
-    selfDeaf: false,
-    autoReconnect: { enabled: true, delay: 30, maxRetries: 5 },
-    presence: { status: "invisible" },
-    selfMute: false
-  },
-  {
-    channelId: "1045359599584280696",
-    serverId: "1109636583642103903",
-    token: process.env.token7,
-    selfDeaf: false,
-    autoReconnect: { enabled: true, delay: 30, maxRetries: 5 },
-    presence: { status: "invisible" },
-    selfMute: false
-  },
-  {
-    channelId: "1482918046891905075",
-    serverId: "1459061747204751486",
-    token: process.env.token8,
-    selfDeaf: false,
-    autoReconnect: { enabled: true, delay: 30, maxRetries: 5 },
-    presence: { status: "invisible" },
-    selfMute: false
-  },
-  {
-    channelId: "1517475607020044419",
-    serverId: "1467940648664694888",
-    token: process.env.token9,
-    selfDeaf: false,
-    autoReconnect: { enabled: true, delay: 30, maxRetries: 5 },
-    presence: { status: "invisible" },
-    selfMute: false
-  }
+{
+channelId: "1045359599584280696",
+serverId: "1109636583642103903",
+token: process.env.token1,
+selfDeaf: false,
+autoReconnect: { enabled: true, delay: 30, maxRetries: 5 },
+presence: { status: "invisible" },
+selfMute: false
+},
+{
+channelId: "1045359599584280696",
+serverId: "1109636583642103903",
+token: process.env.token2,
+selfDeaf: false,
+autoReconnect: { enabled: true, delay: 30, maxRetries: 5 },
+presence: { status: "invisible" },
+selfMute: false
+},
+{
+channelId: "1045359599584280696",
+serverId: "1109636583642103903",
+token: process.env.token3,
+selfDeaf: false,
+autoReconnect: { enabled: true, delay: 30, maxRetries: 5 },
+presence: { status: "invisible" },
+selfMute: false
+},
+{
+channelId: "1486106780798029925",
+serverId: "1109636583642103903",
+token: process.env.token4,
+selfDeaf: false,
+autoReconnect: { enabled: true, delay: 30, maxRetries: 5 },
+presence: { status: "invisible" },
+selfMute: false
+},
+{
+channelId: "1045359599584280696",
+serverId: "1109636583642103903",
+token: process.env.token5,
+selfDeaf: false,
+autoReconnect: { enabled: true, delay: 30, maxRetries: 5 },
+presence: { status: "invisible" },
+selfMute: false
+},
+{
+channelId: "1045359599584280696",
+serverId: "1109636583642103903",
+token: process.env.token6,
+selfDeaf: false,
+autoReconnect: { enabled: true, delay: 30, maxRetries: 5 },
+presence: { status: "invisible" },
+selfMute: false
+},
+{
+channelId: "1045359599584280696",
+serverId: "1109636583642103903",
+token: process.env.token7,
+selfDeaf: false,
+autoReconnect: { enabled: true, delay: 30, maxRetries: 5 },
+presence: { status: "invisible" },
+selfMute: false
+},
+{
+channelId: "1514313860981456957",
+serverId: "1337086335261085829",
+token: process.env.token8,
+selfDeaf: true,
+autoReconnect: { enabled: true, delay: 30, maxRetries: 5 },
+presence: { status: "invisible" },
+selfMute: true
+},
+{
+channelId: "1514313514481615018",
+serverId: "1337086335261085829",
+token: process.env.token9,
+selfDeaf: true,
+autoReconnect: { enabled: true, delay: 30, maxRetries: 5 },
+presence: { status: "invisible" },
+selfMute: true
+}
 ];
